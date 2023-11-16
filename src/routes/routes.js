@@ -25,29 +25,26 @@ router.post("/login", async (req, res) => {
       return res.status(200).json({ userExist: false, message: "Usuario no encontrado" });
     }
 
-    const passwordIsCorrect = await new Promise((resolve, reject) => {
-      bcrypt.compare(clave, results[0].clave, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
-      });
+    const storedPassword = results[0].clave;
+
+    // Comparación directa sin bcrypt (temporal, solo para depuración)
+    const directComparison = clave === storedPassword;
+
+    // Verificación con bcrypt
+    const normalizedUserPassword = clave.normalize();
+    const normalizedStoredPassword = storedPassword.normalize();
+    bcrypt.compare(normalizedUserPassword, normalizedStoredPassword, (err, result) =>  {
+      if (err) {
+        console.error('Error al comparar contraseñas:', err);
+      } else {
+        if (result) {
+          console.log('Contraseña correcta');
+        } else {
+          console.log('Contraseña incorrecta');
+        }
+      }
     });
 
-    if (passwordIsCorrect) {
-      // La contraseña es correcta, puedes redirigir al usuario a la parte correspondiente de tu aplicación
-      res.status(200).json({
-        userExist: true,
-        userId: results[0].id,
-        username: results[0].user,
-        message: "Inicio de sesión exitoso",
-      });
-    } else {
-      // La contraseña es incorrecta
-      res.status(200).json({
-        userExist: true,
-        passwordIsCorrect: false,
-        message: "Contraseña incorrecta",
-      });
-    }
   } catch (error) {
     console.error("Error en la consulta a la base de datos:", error);
     res.status(500).json({
