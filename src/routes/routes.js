@@ -10,7 +10,6 @@ router.post("/login", async (req, res) => {
     const results = await new Promise((resolve, reject) => {
       connection.query(
         "SELECT * FROM users WHERE user = ?",
-        // "SELECT * FROM users WHERE user = ? AND clave = ?",
         [user],
         function (err, results) {
           if (err) {
@@ -22,20 +21,33 @@ router.post("/login", async (req, res) => {
       );
     });
 
-    if (results.length === 0) return res.status(200).json({ userExist: false });
+    if (results.length === 0) {
+      return res.status(200).json({ userExist: false, message: "Usuario no encontrado" });
+    }
 
     const passwordIsCorrect = await new Promise((resolve, reject) => {
       bcrypt.compare(clave, results[0].clave, (err, result) => {
         if (err) reject(err);
-        if (result) resolve(result);
-        else resolve(result);
+        resolve(result);
       });
     });
 
-    //Responde con informacón que determina si existe un usuario y clave
-    res
-      .status(200)
-      .json({ userExist: results.length !== 0, passwordIsCorrect });
+    if (passwordIsCorrect) {
+      // La contraseña es correcta, puedes redirigir al usuario a la parte correspondiente de tu aplicación
+      res.status(200).json({
+        userExist: true,
+        userId: results[0].id,
+        username: results[0].user,
+        message: "Inicio de sesión exitoso",
+      });
+    } else {
+      // La contraseña es incorrecta
+      res.status(200).json({
+        userExist: true,
+        passwordIsCorrect: false,
+        message: "Contraseña incorrecta",
+      });
+    }
   } catch (error) {
     console.error("Error en la consulta a la base de datos:", error);
     res.status(500).json({
