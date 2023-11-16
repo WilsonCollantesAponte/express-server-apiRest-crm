@@ -27,9 +27,6 @@ router.post("/login", async (req, res) => {
 
     const storedPassword = results[0].clave;
 
-    // Comparación directa sin bcrypt (temporal, solo para depuración)
-    const directComparison = clave === storedPassword;
-
     // Verificación con bcrypt
     const normalizedUserPassword = clave.normalize();
     const normalizedStoredPassword = storedPassword.normalize();
