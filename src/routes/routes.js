@@ -1,7 +1,8 @@
 const express = require("express");
 const connection = require("../conexion/bd_conexion.jsx");
 const router = express.Router();
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
+const bcryptjs = require("bcryptjs");
 
 router.post("/login", async (req, res) => {
   const { user, clave } = req.body;
@@ -22,12 +23,13 @@ router.post("/login", async (req, res) => {
       );
     });
 
+    // return res.status(200).json(results);
+
     if (results.length === 0) return res.status(200).json({ userExist: false });
 
     const passwordIsCorrect = await new Promise((resolve, reject) => {
-      bcrypt.compare(clave, results[0].clave, (err, result) => {
+      bcryptjs.compare(clave, results[0].clave, (err, result) => {
         if (err) reject(err);
-        if (result) resolve(result);
         else resolve(result);
       });
     });
