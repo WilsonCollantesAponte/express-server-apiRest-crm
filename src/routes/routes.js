@@ -1,7 +1,6 @@
 const express = require("express");
 const connection = require("../conexion/bd_conexion.jsx");
 const router = express.Router();
-// const bcrypt = require("bcrypt");
 const bcryptjs = require("bcryptjs");
 
 router.post("/login", async (req, res) => {
